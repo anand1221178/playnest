@@ -6,22 +6,56 @@ import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AnnouncementBar from "@/components/AnnouncementBar";
-import { PRODUCTS, CATEGORIES } from "@/lib/products";
+import { CATEGORIES } from "@/lib/products";
+import type { Product } from "@/lib/products";
 import { SlidersHorizontal, X } from "lucide-react";
-
-const ALL_BRANDS = [...new Set(PRODUCTS.map((p) => p.brand))].sort();
 
 function ProductsContent() {
   const searchParams  = useSearchParams();
   const router        = useRouter();
   const urlCategory   = searchParams.get("category");
 
-  const [activeCategory, setActiveCategory] = useState<string | null>(urlCategory);
-  const [activeBrand, setActiveBrand]       = useState<string | null>(null);
-  const [sort, setSort]                     = useState("rating");
-  const [filterOpen, setFilterOpen]         = useState(false);
+  const [products, setProducts]               = useState<Product[]>([]);
+  const [loading, setLoading]                 = useState(true);
+  const [activeCategory, setActiveCategory]   = useState<string | null>(urlCategory);
+  const [activeBrand, setActiveBrand]         = useState<string | null>(null);
+  const [sort, setSort]                       = useState("rating");
+  const [filterOpen, setFilterOpen]           = useState(false);
 
-  // Sync state when URL param changes (e.g. nav link clicked)
+  // Fetch products from API
+  useEffect(() => {
+    setLoading(true);
+    const url = activeCategory
+      ? `/api/products?category=${activeCategory}`
+      : "/api/products";
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        // Map snake_case from DB to camelCase
+        const mapped = data.map((row: Record<string, unknown>) => ({
+          id: row.id,
+          slug: row.slug,
+          name: row.name,
+          brand: row.brand,
+          category: row.category,
+          categorySlug: row.category_slug,
+          ageRange: row.age_range,
+          price: Number(row.price),
+          salePrice: row.sale_price ? Number(row.sale_price) : undefined,
+          badge: row.badge || undefined,
+          rating: Number(row.rating),
+          reviews: Number(row.reviews),
+          description: row.description,
+          features: row.features,
+          images: row.images,
+        }));
+        setProducts(mapped);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [activeCategory]);
+
+  // Sync state when URL param changes
   useEffect(() => {
     setActiveCategory(urlCategory);
   }, [urlCategory]);
@@ -32,9 +66,10 @@ function ProductsContent() {
     router.replace(url, { scroll: false });
   };
 
-  let filtered = PRODUCTS;
-  if (activeCategory) filtered = filtered.filter((p) => p.categorySlug === activeCategory);
-  if (activeBrand)    filtered = filtered.filter((p) => p.brand === activeBrand);
+  const ALL_BRANDS = [...new Set(products.map((p) => p.brand))].sort();
+
+  let filtered = products;
+  if (activeBrand) filtered = filtered.filter((p) => p.brand === activeBrand);
   if (sort === "rating")        filtered = [...filtered].sort((a, b) => b.rating - a.rating);
   else if (sort === "price-asc")  filtered = [...filtered].sort((a, b) => a.price - b.price);
   else if (sort === "price-desc") filtered = [...filtered].sort((a, b) => b.price - a.price);
@@ -51,7 +86,9 @@ function ProductsContent() {
           <h1 style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(28px, 5vw, 48px)", color: "var(--navy)" }}>
             {activeLabel ?? "All Toys"}
           </h1>
-          <p style={{ color: "var(--slate)" }}>{filtered.length} toys found</p>
+          <p style={{ color: "var(--slate)" }}>
+            {loading ? "Loading..." : `${filtered.length} toys found`}
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -129,7 +166,12 @@ function ProductsContent() {
 
         {/* Grid */}
         <div className="flex-1">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-20" style={{ color: "var(--slate)" }}>
+              <div className="w-10 h-10 border-4 rounded-full animate-spin mx-auto mb-4" style={{ borderColor: "var(--coral)", borderTopColor: "transparent" }} />
+              <p className="font-bold">Loading toys...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-20" style={{ color: "var(--slate)" }}>
               <p className="text-5xl mb-4">🔍</p>
               <p className="font-bold text-lg">No toys found for this filter.</p>

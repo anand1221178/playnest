@@ -1,5 +1,5 @@
-"use client";
-import { useEffect } from "react";
+export const dynamic = "force-dynamic";
+
 import AnnouncementBar from "@/components/AnnouncementBar";
 import Navbar         from "@/components/Navbar";
 import Hero           from "@/components/Hero";
@@ -10,18 +10,9 @@ import NewArrivals    from "@/components/NewArrivals";
 import GiftFinder     from "@/components/GiftFinder";
 import Newsletter     from "@/components/Newsletter";
 import Footer         from "@/components/Footer";
+import ScrollAnimator from "@/components/ScrollAnimator";
 
 export default function Home() {
-  useEffect(() => {
-    const els = document.querySelectorAll(".fade-in-up");
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("visible"); }),
-      { threshold: 0.12 }
-    );
-    els.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <main className="flex flex-col">
       <AnnouncementBar />
@@ -34,6 +25,7 @@ export default function Home() {
       <GiftFinder />
       <Newsletter />
       <Footer />
+      <ScrollAnimator />
     </main>
   );
 }

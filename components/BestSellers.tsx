@@ -1,8 +1,8 @@
 import ProductCard from "./ProductCard";
 import { getFeaturedProducts } from "@/lib/products";
 
-export default function BestSellers() {
-  const products = getFeaturedProducts();
+export default async function BestSellers() {
+  const products = await getFeaturedProducts();
   return (
     <section className="py-16" style={{ backgroundColor: "var(--cream)" }}>
       <div className="max-w-[1280px] mx-auto px-5 md:px-10">

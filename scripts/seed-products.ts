@@ -8,6 +8,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import ws from "ws";
 
 // Load env
 import { config } from "dotenv";
@@ -15,7 +16,8 @@ config({ path: ".env.local" });
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { realtime: { transport: ws as unknown as typeof WebSocket } }
 );
 
 function imgs(folder: string, count: number): string[] {

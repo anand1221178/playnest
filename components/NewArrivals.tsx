@@ -1,8 +1,8 @@
 import ProductCard from "./ProductCard";
 import { getNewArrivals } from "@/lib/products";
 
-export default function NewArrivals() {
-  const products = getNewArrivals();
+export default async function NewArrivals() {
+  const products = await getNewArrivals();
   return (
     <section className="py-16" style={{ backgroundColor: "var(--cream)" }}>
       <div className="max-w-[1280px] mx-auto px-5 md:px-10">
@@ -10,7 +10,7 @@ export default function NewArrivals() {
           className="text-center mb-2 fade-in-up"
           style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(26px, 4vw, 44px)", color: "var(--navy)" }}
         >
-          Just Landed 🚀
+          Just Landed
         </h2>
         <p className="text-center mb-10 fade-in-up" style={{ color: "var(--slate)" }}>
           Fresh picks added this week
