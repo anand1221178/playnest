@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 const STEPS = [
-  { num: "1", label: "Pick an age" },
-  { num: "2", label: "Choose interests" },
-  { num: "3", label: "Get matched" },
+  { num: "1", label: "Pick an age",       href: "/products?category=baby-toddler" },
+  { num: "2", label: "Choose interests",  href: "/products" },
+  { num: "3", label: "Get matched",       href: "/products" },
 ];
 
 export default function GiftFinder() {
@@ -36,12 +38,13 @@ export default function GiftFinder() {
               ))}
             </div>
 
-            <button
-              className="self-start px-8 py-3.5 rounded-full text-white font-extrabold text-base transition-transform hover:scale-105 active:scale-95"
+            <Link
+              href="/products"
+              className="self-start px-8 py-3.5 rounded-full text-white font-extrabold text-base transition-transform hover:scale-105 active:scale-95 inline-block"
               style={{ backgroundColor: "var(--coral)" }}
             >
               Find the Perfect Gift →
-            </button>
+            </Link>
           </div>
 
           {/* Right — illustrated visual */}

@@ -1,0 +1,278 @@
+/**
+ * Seed script — migrates static product data into Supabase.
+ *
+ * Usage:
+ *   npx tsx scripts/seed-products.ts
+ *
+ * Requires .env.local to be set with SUPABASE vars.
+ */
+
+import { createClient } from "@supabase/supabase-js";
+
+// Load env
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+function imgs(folder: string, count: number): string[] {
+  return Array.from({ length: count }, (_, i) => `/products/${folder}/${i + 1}.png`);
+}
+
+const PRODUCTS = [
+  {
+    id: "giggles-star-link", slug: "giggles-star-link", name: "Giggles Star Link",
+    brand: "Giggles", category: "Baby & Toddler", category_slug: "baby-toddler",
+    age_range: "6+ months", price: 149.99, rating: 4.8, reviews: 87,
+    description: "A collection of 12 vibrant interlocking star links that can be arranged in various ways to form patterns, aiding toddlers in discovering shapes, colors, and symmetry.",
+    features: ["12 vibrant interlocking star links", "Promotes hand-eye coordination & counting skills", "Crafted from high-quality, non-toxic materials", "Smooth, rounded edges — safe on gums", "Suitable for 6 months and older"],
+    images: imgs("giggles/star-link", 6), stock: 25,
+  },
+  {
+    id: "giggles-stack-a-boat", slug: "giggles-stack-a-boat", name: "Giggles Stack A Boat",
+    brand: "Giggles", category: "Baby & Toddler", category_slug: "baby-toddler",
+    age_range: "18+ months", price: 249.99, rating: 4.7, reviews: 63,
+    description: "Pull-along, nesting & stackable toy that encourages learning and development through colourful hands-on play. Made from durable, child-safe plastic.",
+    features: ["Pull-along, nesting and stackable play", "Multicolour durable plastic", "Ideal for over 18 months", "Develops fine motor skills"],
+    images: imgs("giggles/stack-a-boat", 6), stock: 20,
+  },
+  {
+    id: "giggles-shape-sorter-gear-box", slug: "giggles-shape-sorter-gear-box", name: "Giggles Shape Sorter Gear Box",
+    brand: "Giggles", category: "Baby & Toddler", category_slug: "baby-toddler",
+    age_range: "18+ months", price: 199.99, badge: "NEW", rating: 4.9, reviews: 112,
+    description: "Spin, match & learn with 4 gears and 9 multicolour shapes. A 2-in-1 toy that lets kids sort shapes into matching slots and then twist and spin the gears.",
+    features: ["Sturdy shape sorter cube with 4 colourful spinning gears", "9 bright chunky shape blocks", "Builds fine motor control and hand-eye coordination", "Safe & toddler-friendly — smooth rounded edges", "Easy to clean and tough enough for everyday play"],
+    images: imgs("giggles/shape-sorter-gear-box", 6), stock: 30,
+  },
+  {
+    id: "giggles-link-stack-n-nest", slug: "giggles-link-stack-n-nest", name: "Giggles Link Stack N Nest",
+    brand: "Giggles", category: "Baby & Toddler", category_slug: "baby-toddler",
+    age_range: "6+ months", price: 299.99, rating: 4.8, reviews: 145,
+    description: "8 bright stacking drums, 4 nesting eggs featuring a chick, and 12 colourful chain links — 3 fun play modes in one awesome toy set for endless enjoyment.",
+    features: ["8 stacking drums, 4 nesting eggs, 12 chain links", "3 play modes in one set", "Aids counting, colour & shape recognition", "Non-toxic plastic with smooth edges", "Ideal gift for birthdays and special occasions"],
+    images: imgs("giggles/link-stack-n-nest-nesting-stackable", 6), stock: 15,
+  },
+  {
+    id: "giggles-learn-n-write-slate", slug: "giggles-learn-n-write-slate", name: "Giggles Learn N Write Slate",
+    brand: "Giggles", category: "Baby & Toddler", category_slug: "baby-toddler",
+    age_range: "3+ years", price: 349.99, rating: 4.7, reviews: 54,
+    description: "Double-sided magnetic board with 26 magnetic alphabets, 10 numeric digits, 5 mathematical signs, and 5 vowels — perfect for writing, erasing, and reusing.",
+    features: ["26 magnetic alphabets + 10 numeric digits", "5 mathematical signs and 5 vowels included", "Double-sided design — marker side + magnetic side", "Includes wooden stands, duster, and erasable marker", "Continuous learning through write-and-erase play"],
+    images: imgs("giggles/learn-n-write-slate", 6), stock: 18,
+  },
+  {
+    id: "giggles-gift-set-mini", slug: "giggles-gift-set-mini", name: "Giggles Gift Set Mini",
+    brand: "Giggles", category: "Baby & Toddler", category_slug: "baby-toddler",
+    age_range: "5+ months", price: 199.99, badge: "NEW", rating: 4.9, reviews: 203,
+    description: "The perfect newborn gift set — includes rattle, teether, vehicle and activity toys designed to stimulate development from 5 months. Beautifully packaged in a gift box.",
+    features: ["Rattle, teether, vehicle & activity toys", "Stimulates early sensory development", "Made from safe, BPA-free plastic", "Beautifully packaged — ready to gift", "Ideal for newborns and young infants"],
+    images: imgs("giggles/gift-set-mini", 6), stock: 35,
+  },
+  {
+    id: "giggles-fruit-teether", slug: "giggles-fruit-teether", name: "Giggles Fruit Teether",
+    brand: "Giggles", category: "Baby & Toddler", category_slug: "baby-toddler",
+    age_range: "3+ months", price: 99.99, rating: 4.8, reviews: 178,
+    description: "Designed to soothe gums and promote natural jaw development. Easy to grasp, hold and chew. Meets EN71 and ASTM F963 toy safety standards.",
+    features: ["Easy to grasp, hold and chew", "Stimulates senses & promotes jaw development", "Meets EN71 and ASTM F963 safety standards", "Non-toxic, BPA-free materials", "From 3 months and above"],
+    images: imgs("giggles/fruit-teether", 6), stock: 40,
+  },
+  {
+    id: "giggles-my-first-easel", slug: "giggles-my-first-easel", name: "Giggles My First Easel",
+    brand: "Giggles", category: "Baby & Toddler", category_slug: "baby-toddler",
+    age_range: "3+ years", price: 1399.99, rating: 4.9, reviews: 91,
+    description: "4-in-1 double-sided wooden magnetic board with alphabets & numbers. Height-adjustable to grow with your child — dry erase board, magnetic board, and chalkboard in one.",
+    features: ["Height-adjustable sturdy stand", "Dry erase + magnetic + chalkboard — 3 surfaces", "26 magnetic alphabets, 10 numbers, 5 vowels, 5 math signs", "Includes paintbrush, paper roll, dry erase marker & duster", "Encourages creativity, writing, and maths"],
+    images: imgs("giggles/my-first-easel", 6), stock: 10,
+  },
+  {
+    id: "fundough-jars-activity-kit", slug: "fundough-jars-activity-kit", name: "Fundough Jars Activity Kit",
+    brand: "Fundough", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "3+ years", price: 179.99, rating: 4.8, reviews: 67,
+    description: "Stored in a reusable jar — comes with 4 tubs of vibrant Fundough (75g each) plus 8 fun-shaped cutters. Mess-free creative play that builds fine motor skills.",
+    features: ["4 tubs of Fundough (75g each) in a reusable jar", "8 fun-shaped cutters (bear, monkey, lion, star, flower & more)", "Non-toxic, child-safe materials", "Develops fine motor skills & colour recognition", "Perfect for ages 3 and up"],
+    images: imgs("dough/jars-activity-kit", 5), stock: 22,
+  },
+  {
+    id: "handycrafts-scrapbook", slug: "handycrafts-scrapbook", name: "Handycrafts Scrapbook Kit",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "5+ years", price: 299.99, rating: 4.7, reviews: 43,
+    description: "DIY scrapbook kit with 120+ colourful stickers, alphabet & pattern stencils, chart paper, design sheets, and sketch pens. Encourages creativity and storytelling.",
+    features: ["120+ colourful stickers and decorative sticker beads", "Alphabet and pattern stencils", "Chart paper, design sheets, pattern boards, sketch pens", "Encourages creativity, self-expression, and storytelling", "Simple instructions — kids can use independently"],
+    images: imgs("handycrafts/scrapbook", 5), stock: 18,
+  },
+  {
+    id: "handycrafts-my-kaleidoscope", slug: "handycrafts-my-kaleidoscope", name: "Handycrafts My Kaleidoscope",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "5+ years", price: 299.99, rating: 4.8, reviews: 58,
+    description: "A unique optical illusion kit — kids assemble their own kaleidoscope, do glass painting, and embellish lenses with beads to create stunning magical designs.",
+    features: ["Assemble your own wheel kaleidoscope", "Glass painting and bead embellishment", "Teaches colours, light and optical illusions", "Suitable for children 5 years and above", "Great STEM + art crossover activity"],
+    images: imgs("handycrafts/my-kaleidoscope", 6), stock: 14,
+  },
+  {
+    id: "handycrafts-soap-making-kit", slug: "handycrafts-soap-making-kit", name: "Handycrafts Soap Making Kit",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "5+ years", price: 349.99, badge: "NEW", rating: 4.9, reviews: 112,
+    description: "DIY soap crafting with 6 animal-shaped molds (elephant, lion, duck, monkey, octopus, giraffe). Includes 4 soap colours, fragrance, and gift wrap covers.",
+    features: ["6 fun animal-shaped soap molds", "4 soap colorants + 1 fragrance bottle", "Gift wrap covers included", "Teaches kids about hygiene in a fun way", "All materials are child-safe and non-toxic"],
+    images: imgs("handycrafts/soap-making-kit", 7), stock: 28,
+  },
+  {
+    id: "handycrafts-nail-design-studio", slug: "handycrafts-nail-design-studio", name: "Handycrafts Nail Design Studio",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "7+ years", price: 349.99, rating: 4.7, reviews: 89,
+    description: "The ultimate kit for young fashionistas! Introduces the art of decorating nails in different styles. Experiment with creative nail designs in a safe, fun way.",
+    features: ["Complete nail design kit for kids", "Experiment with multiple nail art styles", "Perfect for young fashionistas aged 7+", "Safe, child-friendly materials", "Great gift for birthdays and holidays"],
+    images: imgs("handycrafts/nail-design-studio", 6), stock: 16,
+  },
+  {
+    id: "handycrafts-glass-painting-kit", slug: "handycrafts-glass-painting-kit", name: "Handycrafts Glass Painting Kit",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "6+ years", price: 399.99, rating: 4.8, reviews: 76,
+    description: "2 acrylic boards, 6 frame strips, 2 display stands, 3 glass paints, paintbrush, and palette. Kids create stunning stained-glass style artwork to display at home.",
+    features: ["2 printed peel-off acrylic boards (20x20cm)", "6 frame strips + 2 display stands", "3 glass paints (10ml each) + paintbrush + palette", "Non-toxic, child-safe paints", "Create display-worthy artwork for home or school"],
+    images: imgs("handycrafts/glass-painting-kit", 7), stock: 12,
+  },
+  {
+    id: "handycrafts-canvas-art", slug: "handycrafts-canvas-art", name: "Handycrafts Canvas Art",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "6+ years", price: 279.99, rating: 4.7, reviews: 52,
+    description: "Paint stunning canvas artworks with this all-inclusive kit. Everything needed to create gallery-worthy pieces — great for developing focus and artistic expression.",
+    features: ["Complete canvas painting kit", "Develops focus and fine motor skills", "Non-toxic, child-safe acrylic paints", "Suitable for ages 6 and above", "Perfect gift for creative kids"],
+    images: imgs("handycrafts/canvas-art", 6), stock: 20,
+  },
+  {
+    id: "handycrafts-wrist-band-kit", slug: "handycrafts-wrist-band-kit", name: "Handycrafts DIY Wrist Band Kit",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "5+ years", price: 249.99, rating: 4.6, reviews: 34,
+    description: "Create 8 colourful and stylish wristbands using wooden dials, stickers, beads and cords. Make Rakhi, friendship bands, or wristbands for family and friends.",
+    features: ["Make 8 colourful wristbands", "Includes wooden dials, stickers, beads and cords", "Perfect for friendship bands or Rakhi", "No glue, no mess — peel, stick and design", "Ideal for ages 5 and above"],
+    images: imgs("handycrafts/wrist-band-kit", 1), stock: 30,
+  },
+  {
+    id: "handycrafts-quilling", slug: "handycrafts-quilling", name: "Handycrafts Quilling Art",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "7+ years", price: 349.99, rating: 4.8, reviews: 61,
+    description: "Twist colourful paper strips into stunning quilling designs. Kit includes paper strips, tools, glue, a greeting card, frame background, and instruction sheet.",
+    features: ["Quilling paper strips, tools and glue included", "Greeting card + frame background", "Boosts creativity, patience and dexterity", "Enhances hand-eye coordination and focus", "Perfect for ages 7 and up"],
+    images: imgs("handycrafts/quilling", 5), stock: 17,
+  },
+  {
+    id: "handycrafts-pop-up-greeting-cards", slug: "handycrafts-pop-up-greeting-cards", name: "Handycrafts Pop Up Greeting Cards Kit",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "7+ years", price: 179.99, rating: 4.7, reviews: 48,
+    description: "Create stunning 3D pop-up cards with 7 printed pop-up cards, 3 envelopes, bookmarks, glitter stickers, sketch pens, and a design stencil. For ages 7+.",
+    features: ["7 printed pop-up cards + 3 envelopes", "5 bookmarks, glitter stickers, sketch pens", "Glue bottle, ribbon, and design stencil", "Easy step-by-step instructions", "Great for return gifts and birthdays"],
+    images: imgs("handycrafts/pop-up-greeting-cards-making-kit", 5), stock: 24,
+  },
+  {
+    id: "handycrafts-sand-art-kit", slug: "handycrafts-sand-art-kit", name: "Handycrafts Sand Art Kit",
+    brand: "Handycrafts", category: "Arts & Crafts", category_slug: "arts-crafts",
+    age_range: "5+ years", price: 299.99, rating: 4.8, reviews: 73,
+    description: "6 design boards with sticky surfaces and 9 bags of colourful sand (100g each). A creative, screen-free activity that develops colour recognition and fine motor skills.",
+    features: ["6 sand art design boards with sticky surfaces", "9 bags of bright coloured sand (100g each)", "1 Board Sand Collector + ribbon + instructions", "Improves creativity, fine motor skills and focus", "Screen-free fun for ages 5 and above"],
+    images: imgs("handycrafts/sand-art-kit", 7), stock: 19,
+  },
+  {
+    id: "games-othello-classic", slug: "games-othello-classic", name: "Othello Classic",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "7+ years", price: 349.99, rating: 4.8, reviews: 134,
+    description: "The classic strategy board game of flipping discs. Easy to learn — a minute to play, a lifetime to master. Develops strategic thinking and forward planning.",
+    features: ["Classic 8x8 strategy game", "A minute to learn, a lifetime to master", "Develops strategic thinking and concentration", "Suitable for 2 players, ages 7+", "Durable board and reversible playing pieces"],
+    images: imgs("games/othello-classic", 9), stock: 15,
+  },
+  {
+    id: "games-snake-and-ladders", slug: "games-snake-and-ladders", name: "Snakes & Ladders",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "3+ years", price: 149.99, rating: 4.6, reviews: 221,
+    description: "The timeless family classic — roll the dice, climb the ladders, and avoid the snakes! A simple game of luck and excitement for the whole family.",
+    features: ["Classic snakes and ladders game board", "Fun for the whole family", "Develops number recognition and counting", "Suitable for 2-4 players, ages 3+", "Durable game board and pieces"],
+    images: imgs("games/snake-ladders", 9), stock: 35,
+  },
+  {
+    id: "games-solar-system", slug: "games-solar-system", name: "The Solar System Puzzle & Game",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "4-8 years", price: 179.99, badge: "NEW", rating: 4.8, reviews: 89,
+    description: "Build a 60-piece space scene, then use 10 seek-and-spot cards to hunt for rockets, planets, and stars — two-step play that extends focus and replay value.",
+    features: ["60-piece space scene puzzle", "10 seek-and-spot picture cards", "Two ways to play: beginner and advanced", "BIS approved and Made in India", "Sparks curiosity about our solar system"],
+    images: imgs("games/the-solar-system", 9), stock: 22,
+  },
+  {
+    id: "games-ludo", slug: "games-ludo", name: "Ludo",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "5+ years", price: 149.99, rating: 4.7, reviews: 189,
+    description: "The beloved South African classic! Race your tokens home while sending rivals back to start. Simple rules, endless excitement for 2-4 players.",
+    features: ["Classic Ludo board game", "2-4 players", "Develops counting and turn-taking skills", "Durable game board with colour-coded pieces", "Perfect family game night choice"],
+    images: imgs("games/ludo", 5), stock: 40,
+  },
+  {
+    id: "games-fruits-vegetables", slug: "games-fruits-vegetables", name: "Fruits & Vegetables Puzzle",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "4+ years", price: 179.99, rating: 4.7, reviews: 67,
+    description: "A vibrant educational puzzle teaching kids to identify fruits and vegetables. Bright, chunky pieces perfect for little hands developing fine motor skills.",
+    features: ["Colourful fruits & vegetables puzzle", "Teaches naming and identification", "Chunky pieces ideal for small hands", "Develops fine motor skills", "Educational and fun for ages 4+"],
+    images: imgs("games/fruits-vegetables", 5), stock: 25,
+  },
+  {
+    id: "games-chess", slug: "games-chess", name: "Chess",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "6+ years", price: 199.99, rating: 4.9, reviews: 156,
+    description: "The ultimate game of strategy and skill. Teaches logical thinking, forward planning, and patience. A lifelong game that sharpens the mind.",
+    features: ["Complete chess set with board and pieces", "Develops logical thinking and strategy", "Classic 2-player game", "Suitable for ages 6 and above", "Durable pieces and game board"],
+    images: imgs("games/chess", 9), stock: 20,
+  },
+  {
+    id: "games-world-map", slug: "games-world-map", name: "World Map Puzzle",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "6+ years", price: 179.99, rating: 4.8, reviews: 103,
+    description: "105 top-quality puzzle pieces that form a vibrant world map. Helps children discover continents, countries, and oceans while boosting spatial awareness.",
+    features: ["105 high-quality puzzle pieces", "Vibrant world map illustration", "Teaches continents, countries and oceans", "Boosts spatial awareness and cognitive skills", "Ideal educational gift for ages 6+"],
+    images: imgs("games/world-map", 10), stock: 18,
+  },
+  {
+    id: "games-whos-it", slug: "games-whos-it", name: "Who's It?",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "8+ years", price: 299.99, badge: "NEW", rating: 4.8, reviews: 78,
+    description: "Ask yes-or-no questions to uncover the mystery character before your opponent. A deduction game that builds critical thinking, memory and communication skills.",
+    features: ["2 durable gameboards (red and blue)", "40 plastic frames + 3 sets of character cards", "2+ players — great for families", "Develops critical thinking and logical reasoning", "Endless replay value — no two games are the same"],
+    images: imgs("games/who-s-it", 5), stock: 16,
+  },
+  {
+    id: "games-chess-classic", slug: "games-chess-classic", name: "Chess Classic",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "6+ years", price: 199.99, rating: 4.7, reviews: 92,
+    description: "Premium classic chess set with a beautiful board and finely crafted pieces. Perfect for learning the game or improving your strategy.",
+    features: ["Premium classic chess set", "Beautiful board with finely crafted pieces", "Suitable for beginners and experienced players", "Ages 6 and above", "Develops strategic thinking and patience"],
+    images: imgs("games/chess-classic", 6), stock: 14,
+  },
+  {
+    id: "games-play-learn-alphabet", slug: "games-play-learn-alphabet", name: "Play & Learn Alphabet Puzzle",
+    brand: "Games", category: "Puzzles & Games", category_slug: "puzzles-games",
+    age_range: "3+ years", price: 179.99, rating: 4.8, reviews: 141,
+    description: "A fun and engaging alphabet puzzle that makes learning to read exciting. Colourful letter tiles help children recognise letters and build vocabulary.",
+    features: ["Complete alphabet puzzle set", "Colourful letter tiles with picture clues", "Develops letter recognition and early reading", "Suitable for ages 3 and above", "Great for preschool and school readiness"],
+    images: imgs("games/play-learn-alphabet", 10), stock: 28,
+  },
+];
+
+async function seed() {
+  console.log("Seeding products...");
+
+  for (const product of PRODUCTS) {
+    const { error } = await supabase
+      .from("products")
+      .upsert(product, { onConflict: "id" });
+
+    if (error) {
+      console.error(`Failed to seed ${product.name}:`, error.message);
+    } else {
+      console.log(`  ✓ ${product.name} (stock: ${product.stock})`);
+    }
+  }
+
+  console.log(`\nDone! ${PRODUCTS.length} products seeded.`);
+}
+
+seed().catch(console.error);

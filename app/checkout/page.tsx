@@ -1,82 +1,27 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
 import Navbar from "@/components/Navbar";
 import AnnouncementBar from "@/components/AnnouncementBar";
-import { Check, ChevronRight, Lock, ShoppingBag } from "lucide-react";
+import { ChevronRight, Lock, ShoppingBag } from "lucide-react";
 
-type OrderData = {
-  orderNumber: string;
-  email: string;
-  firstName: string;
-};
-
-// ─── Confirmation screen ────────────────────────────────────────────────────
-function Confirmation({ order, total }: { order: OrderData; total: number }) {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-5 py-16 text-center" style={{ backgroundColor: "var(--cream)" }}>
-      <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ backgroundColor: "var(--mint)" }}>
-        <Check size={36} className="text-white" strokeWidth={3} />
-      </div>
-
-      <h1
-        className="mb-3"
-        style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(28px, 5vw, 48px)", color: "var(--navy)" }}
-      >
-        Order Confirmed! 🎉
-      </h1>
-      <p className="text-base mb-2 max-w-md" style={{ color: "var(--slate)" }}>
-        Thanks, <strong style={{ color: "var(--navy)" }}>{order.firstName}</strong>! Your order{" "}
-        <strong style={{ color: "var(--coral)" }}>#{order.orderNumber}</strong> has been placed.
-      </p>
-      <p className="text-sm mb-8 max-w-md" style={{ color: "var(--slate)" }}>
-        We've sent a confirmation to <strong>{order.email}</strong>. Your order will be dispatched within 1–2 business days.
-      </p>
-
-      <div
-        className="bg-white rounded-2xl p-6 mb-8 text-left max-w-sm w-full border"
-        style={{ borderColor: "rgba(26,26,46,0.08)" }}
-      >
-        <div className="flex justify-between text-sm font-semibold mb-2" style={{ color: "var(--slate)" }}>
-          <span>Order number</span>
-          <span style={{ color: "var(--navy)" }}>#{order.orderNumber}</span>
-        </div>
-        <div className="flex justify-between text-sm font-semibold mb-2" style={{ color: "var(--slate)" }}>
-          <span>Email</span>
-          <span style={{ color: "var(--navy)" }}>{order.email}</span>
-        </div>
-        <div className="flex justify-between text-sm font-bold border-t pt-3 mt-2" style={{ borderColor: "rgba(26,26,46,0.08)" }}>
-          <span style={{ color: "var(--navy)" }}>Total paid</span>
-          <span className="text-base font-black" style={{ color: "var(--coral)" }}>R{total.toFixed(2)}</span>
-        </div>
-      </div>
-
-      <Link
-        href="/products"
-        className="px-8 py-3.5 rounded-full text-white font-extrabold transition-transform hover:scale-105"
-        style={{ backgroundColor: "var(--coral)" }}
-      >
-        Continue Shopping
-      </Link>
-    </div>
-  );
-}
-
-// ─── Checkout page ───────────────────────────────────────────────────────────
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCart();
-  const [confirmed, setConfirmed]   = useState(false);
-  const [orderData, setOrderData]   = useState<OrderData | null>(null);
+  const { items, total } = useCart();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "",
     address: "", city: "", province: "", postalCode: "",
-    cardNumber: "", cardExpiry: "", cardCvc: "",
   });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  // PayFast redirect form
+  const [pfAction, setPfAction] = useState("");
+  const [pfFields, setPfFields] = useState<Record<string, string>>({});
 
   const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -90,32 +35,63 @@ export default function CheckoutPage() {
     if (!form.city.trim())        e.city        = "Required";
     if (!form.province.trim())    e.province    = "Required";
     if (!form.postalCode.trim())  e.postalCode  = "Required";
-    if (form.cardNumber.replace(/\s/g, "").length !== 16) e.cardNumber = "Enter 16-digit card number";
-    if (!form.cardExpiry.match(/^\d{2}\/\d{2}$/)) e.cardExpiry = "MM/YY format";
-    if (form.cardCvc.length < 3) e.cardCvc = "3 digits required";
     return e;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
+
     setSubmitting(true);
-    // Simulate order processing
-    setTimeout(() => {
-      const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
-      setOrderData({ orderNumber, email: form.email, firstName: form.firstName });
-      clearCart();
-      setConfirmed(true);
+    setServerError("");
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          items: items.map((i) => ({ slug: i.product.slug, qty: i.qty })),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setServerError(data.error || "Something went wrong");
+        setSubmitting(false);
+        return;
+      }
+
+      // Set up PayFast redirect form and auto-submit
+      setPfAction(data.payfast.url);
+      setPfFields(data.payfast.fields);
+
+      // Auto-submit after state updates
+      setTimeout(() => formRef.current?.submit(), 100);
+    } catch {
+      setServerError("Network error. Please try again.");
       setSubmitting(false);
-    }, 1200);
+    }
   };
 
   const shipping = total >= 500 ? 0 : 75;
   const grandTotal = total + shipping;
 
-  if (confirmed && orderData) {
-    return <Confirmation order={orderData} total={grandTotal} />;
+  // If PayFast form is ready, render hidden auto-submit form
+  if (pfAction) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4" style={{ backgroundColor: "var(--cream)" }}>
+        <div className="w-12 h-12 border-4 rounded-full animate-spin" style={{ borderColor: "var(--coral)", borderTopColor: "transparent" }} />
+        <p className="font-bold" style={{ color: "var(--navy)" }}>Redirecting to PayFast...</p>
+        <form ref={formRef} action={pfAction} method="POST">
+          {Object.entries(pfFields).map(([k, v]) => (
+            <input key={k} type="hidden" name={k} value={v} />
+          ))}
+        </form>
+      </div>
+    );
   }
 
   if (items.length === 0) {
@@ -164,20 +140,16 @@ export default function CheckoutPage() {
           <span style={{ color: "var(--navy)" }}>Checkout</span>
         </div>
 
-        <h1
-          className="mb-8"
-          style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(28px, 4vw, 40px)", color: "var(--navy)" }}
-        >
+        <h1 className="mb-8" style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(28px, 4vw, 40px)", color: "var(--navy)" }}>
           Checkout
         </h1>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="flex flex-col lg:flex-row gap-10">
 
-            {/* ── LEFT: form ─────────────────────────────────────────────── */}
+            {/* LEFT: form */}
             <div className="flex-1 flex flex-col gap-8">
-
-              {/* Contact — email is the only "account" thing we need */}
+              {/* Contact */}
               <section className="bg-white rounded-2xl p-6 border" style={{ borderColor: "rgba(26,26,46,0.08)" }}>
                 <h2 className="font-extrabold text-base mb-1" style={{ color: "var(--navy)" }}>Contact</h2>
                 <p className="text-xs mb-5" style={{ color: "var(--slate)" }}>
@@ -205,78 +177,32 @@ export default function CheckoutPage() {
                 </div>
               </section>
 
-              {/* Payment */}
+              {/* Payment info box */}
               <section className="bg-white rounded-2xl p-6 border" style={{ borderColor: "rgba(26,26,46,0.08)" }}>
-                <div className="flex items-center gap-2 mb-5">
+                <div className="flex items-center gap-2 mb-3">
                   <h2 className="font-extrabold text-base" style={{ color: "var(--navy)" }}>Payment</h2>
                   <div className="flex items-center gap-1 ml-auto text-xs font-semibold" style={{ color: "var(--mint)" }}>
                     <Lock size={12} /> Secure & encrypted
                   </div>
                 </div>
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <label htmlFor="cardNumber" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>Card number</label>
-                    <input
-                      id="cardNumber" type="text" placeholder="1234 5678 9012 3456"
-                      value={form.cardNumber}
-                      onChange={(e) => {
-                        const v = e.target.value.replace(/\D/g, "").slice(0, 16);
-                        const spaced = v.replace(/(.{4})/g, "$1 ").trim();
-                        setForm((f) => ({ ...f, cardNumber: spaced }));
-                      }}
-                      className={`w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors ${errors.cardNumber ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[var(--coral)]"}`}
-                      style={{ color: "var(--navy)" }}
-                    />
-                    {errors.cardNumber && <p className="text-xs text-red-500 mt-1">{errors.cardNumber}</p>}
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <label htmlFor="cardExpiry" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>Expiry date</label>
-                      <input
-                        id="cardExpiry" type="text" placeholder="MM/YY"
-                        value={form.cardExpiry}
-                        onChange={(e) => {
-                          let v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                          if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
-                          setForm((f) => ({ ...f, cardExpiry: v }));
-                        }}
-                        className={`w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors ${errors.cardExpiry ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[var(--coral)]"}`}
-                        style={{ color: "var(--navy)" }}
-                      />
-                      {errors.cardExpiry && <p className="text-xs text-red-500 mt-1">{errors.cardExpiry}</p>}
-                    </div>
-                    <div className="w-28">
-                      <label htmlFor="cardCvc" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>CVC</label>
-                      <input
-                        id="cardCvc" type="text" placeholder="123"
-                        maxLength={4}
-                        value={form.cardCvc}
-                        onChange={(e) => setForm((f) => ({ ...f, cardCvc: e.target.value.replace(/\D/g, "").slice(0, 4) }))}
-                        className={`w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors ${errors.cardCvc ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[var(--coral)]"}`}
-                        style={{ color: "var(--navy)" }}
-                      />
-                      {errors.cardCvc && <p className="text-xs text-red-500 mt-1">{errors.cardCvc}</p>}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment logos */}
-                <div className="flex items-center gap-2 mt-4 flex-wrap">
-                  {["Visa", "Mastercard", "PayFast", "Yoco"].map((p) => (
+                <p className="text-sm mb-4" style={{ color: "var(--slate)" }}>
+                  You'll be securely redirected to PayFast to complete your payment. We accept Visa, Mastercard, and instant EFT.
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {["Visa", "Mastercard", "Instant EFT", "PayFast"].map((p) => (
                     <span key={p} className="text-xs font-bold px-2.5 py-1 rounded border" style={{ borderColor: "rgba(26,26,46,0.12)", color: "var(--slate)" }}>{p}</span>
                   ))}
                 </div>
               </section>
             </div>
 
-            {/* ── RIGHT: order summary ────────────────────────────────────── */}
+            {/* RIGHT: order summary */}
             <div className="lg:w-[360px] flex flex-col gap-4">
               <div className="bg-white rounded-2xl p-6 border sticky top-24" style={{ borderColor: "rgba(26,26,46,0.08)" }}>
                 <h2 className="font-extrabold text-base mb-5 flex items-center gap-2" style={{ color: "var(--navy)" }}>
                   <ShoppingBag size={18} style={{ color: "var(--coral)" }} /> Order summary
                 </h2>
 
-                {/* Items */}
                 <div className="flex flex-col gap-4 mb-5">
                   {items.map(({ product, qty }) => (
                     <div key={product.slug} className="flex items-center gap-3">
@@ -295,7 +221,6 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
-                {/* Totals */}
                 <div className="flex flex-col gap-2 pt-4 border-t" style={{ borderColor: "rgba(26,26,46,0.08)" }}>
                   <div className="flex justify-between text-sm" style={{ color: "var(--slate)" }}>
                     <span>Subtotal</span>
@@ -318,7 +243,10 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Submit */}
+                {serverError && (
+                  <p className="text-sm text-red-500 mt-3 text-center font-semibold">{serverError}</p>
+                )}
+
                 <button
                   type="submit"
                   disabled={submitting}
@@ -328,12 +256,12 @@ export default function CheckoutPage() {
                   {submitting ? (
                     <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Processing...</>
                   ) : (
-                    <><Lock size={16} /> Pay R{grandTotal.toFixed(2)}</>
+                    <><Lock size={16} /> Pay R{grandTotal.toFixed(2)} with PayFast</>
                   )}
                 </button>
 
                 <p className="text-xs text-center mt-3" style={{ color: "var(--slate)" }}>
-                  🔒 Your payment is secure and encrypted
+                  You'll be redirected to PayFast's secure payment page
                 </p>
               </div>
             </div>

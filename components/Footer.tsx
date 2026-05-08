@@ -1,25 +1,29 @@
-const SHOP_LINKS   = ["All Toys", "Best Sellers", "New Arrivals", "Sale", "Gift Ideas"];
-const HELP_LINKS   = ["FAQ", "Shipping Info", "Returns", "Track My Order", "Contact Us"];
-const COMPANY_LINKS = ["About PlayNest", "Our Blog", "Careers", "Privacy Policy", "Terms of Service"];
+import Link from "next/link";
+
+const SHOP_LINKS = [
+  { label: "All Toys", href: "/products" },
+  { label: "Baby & Toddler", href: "/products?category=baby-toddler" },
+  { label: "Arts & Crafts", href: "/products?category=arts-crafts" },
+  { label: "Puzzles & Games", href: "/products?category=puzzles-games" },
+];
+
+const HELP_LINKS = [
+  { label: "Returns & Refunds", href: "/returns" },
+  { label: "Shipping Info", href: "/terms" },
+  { label: "Contact Us", href: "mailto:hello@playnest.co.za" },
+];
+
+const COMPANY_LINKS = [
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "Return Policy", href: "/returns" },
+];
 
 const SOCIAL = [
   { label: "Facebook",  icon: "f" },
   { label: "Instagram", icon: "in" },
   { label: "TikTok",    icon: "tt" },
-  { label: "Pinterest", icon: "p" },
 ];
-
-function FooterLink({ href = "#", children }: { href?: string; children: React.ReactNode }) {
-  return (
-    <a
-      href={href}
-      className="text-sm transition-colors hover:text-[var(--coral)]"
-      style={{ color: "#9090AA" }}
-    >
-      {children}
-    </a>
-  );
-}
 
 export default function Footer() {
   return (
@@ -33,9 +37,8 @@ export default function Footer() {
               <span className="text-white">Nest</span>
             </div>
             <p className="text-sm leading-relaxed" style={{ color: "#9090AA" }}>
-              Where Wonder Lives — curating joy for little ones since 2022.
+              Where Wonder Lives — curating joy for little ones since 2025.
             </p>
-            {/* Social */}
             <div className="flex gap-3 mt-2">
               {SOCIAL.map(({ label, icon }) => (
                 <a
@@ -54,19 +57,31 @@ export default function Footer() {
           {/* Col 2 — Shop */}
           <div className="flex flex-col gap-3">
             <h4 className="text-white font-extrabold text-sm mb-1">Shop</h4>
-            {SHOP_LINKS.map((l) => <FooterLink key={l}>{l}</FooterLink>)}
+            {SHOP_LINKS.map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm transition-colors hover:text-[var(--coral)]" style={{ color: "#9090AA" }}>
+                {label}
+              </Link>
+            ))}
           </div>
 
           {/* Col 3 — Help */}
           <div className="flex flex-col gap-3">
             <h4 className="text-white font-extrabold text-sm mb-1">Help</h4>
-            {HELP_LINKS.map((l) => <FooterLink key={l}>{l}</FooterLink>)}
+            {HELP_LINKS.map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm transition-colors hover:text-[var(--coral)]" style={{ color: "#9090AA" }}>
+                {label}
+              </Link>
+            ))}
           </div>
 
-          {/* Col 4 — Company */}
+          {/* Col 4 — Legal */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-white font-extrabold text-sm mb-1">Company</h4>
-            {COMPANY_LINKS.map((l) => <FooterLink key={l}>{l}</FooterLink>)}
+            <h4 className="text-white font-extrabold text-sm mb-1">Legal</h4>
+            {COMPANY_LINKS.map(({ label, href }) => (
+              <Link key={label} href={href} className="text-sm transition-colors hover:text-[var(--coral)]" style={{ color: "#9090AA" }}>
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
 
@@ -75,9 +90,9 @@ export default function Footer() {
           className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs border-t"
           style={{ borderColor: "#2A2A4A" }}
         >
-          <p style={{ color: "#9090AA" }}>© 2026 PlayNest. All rights reserved. Made with 💛 for little ones.</p>
+          <p style={{ color: "#9090AA" }}>© 2025 PlayNest. All rights reserved.</p>
           <div className="flex items-center gap-3">
-            {["Visa", "Mastercard", "PayFast", "Yoco"].map((p) => (
+            {["Visa", "Mastercard", "Instant EFT", "PayFast"].map((p) => (
               <span
                 key={p}
                 className="px-2 py-1 rounded text-xs font-bold border"
