@@ -35,10 +35,10 @@ export default function Newsletter() {
           className="text-white fade-in-up"
           style={{ fontFamily: "var(--font-fredoka)", fontSize: "clamp(26px, 4vw, 44px)" }}
         >
-          Get 10% Off Your First Order
+          Stay in the Loop
         </h2>
         <p className="fade-in-up" style={{ color: "var(--slate)" }}>
-          Plus new arrivals, exclusive deals, and parenting tips straight to your inbox.
+          New arrivals, exclusive deals, and parenting tips straight to your inbox.
         </p>
 
         {submitted ? (
@@ -46,7 +46,7 @@ export default function Newsletter() {
             className="py-4 px-6 rounded-2xl font-bold text-white"
             style={{ backgroundColor: "var(--mint)" }}
           >
-            🎉 Check your inbox for your 10% off code!
+            You're in! We'll keep you posted on the latest toys.
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 fade-in-up">
@@ -64,7 +64,7 @@ export default function Newsletter() {
               className="px-6 py-3.5 rounded-full font-extrabold text-white text-sm whitespace-nowrap transition-transform hover:scale-105 active:scale-95"
               style={{ backgroundColor: "var(--coral)", minHeight: "48px" }}
             >
-              Claim My 10% Off
+              Subscribe
             </button>
           </form>
         )}

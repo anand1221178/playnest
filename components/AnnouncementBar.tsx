@@ -11,8 +11,7 @@ export default function AnnouncementBar() {
       style={{ backgroundColor: "var(--coral)" }}
     >
       <p className="text-center">
-        🚚 Free delivery on orders over R500 &nbsp;|&nbsp; Use code{" "}
-        <span className="font-extrabold underline">PLAYTIME</span> for 10% off your first order
+        🚚 Free delivery on orders over R500 &nbsp;|&nbsp; Safe, tested &amp; loved by SA families
       </p>
       <button
         onClick={() => setVisible(false)}

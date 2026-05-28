@@ -110,20 +110,8 @@ export default function CheckoutPage() {
     );
   }
 
-  const Field = ({ label, id, field, placeholder, type = "text", half = false }: {
-    label: string; id: string; field: keyof typeof form; placeholder: string; type?: string; half?: boolean;
-  }) => (
-    <div className={half ? "flex-1 min-w-0" : "w-full"}>
-      <label htmlFor={id} className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>{label}</label>
-      <input
-        id={id} type={type} placeholder={placeholder} value={form[field]}
-        onChange={set(field)}
-        className={`w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors ${errors[field] ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[var(--coral)]"}`}
-        style={{ color: "var(--navy)" }}
-      />
-      {errors[field] && <p className="text-xs text-red-500 mt-1">{errors[field]}</p>}
-    </div>
-  );
+  const fieldClass = (field: keyof typeof form) =>
+    `w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors ${errors[field] ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-[var(--coral)]"}`;
 
   return (
     <main>
@@ -156,23 +144,49 @@ export default function CheckoutPage() {
                   Your order confirmation will be sent here — no account needed.
                 </p>
                 <div className="flex gap-4 flex-wrap sm:flex-nowrap mb-4">
-                  <Field label="First name" id="firstName" field="firstName" placeholder="Lerato" half />
-                  <Field label="Last name"  id="lastName"  field="lastName"  placeholder="Mokoena" half />
+                  <div className="flex-1 min-w-0">
+                    <label htmlFor="firstName" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>First name</label>
+                    <input id="firstName" placeholder="Lerato" value={form.firstName} onChange={set("firstName")} className={fieldClass("firstName")} style={{ color: "var(--navy)" }} />
+                    {errors.firstName && <p className="text-xs text-red-500 mt-1">{errors.firstName}</p>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <label htmlFor="lastName" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>Last name</label>
+                    <input id="lastName" placeholder="Mokoena" value={form.lastName} onChange={set("lastName")} className={fieldClass("lastName")} style={{ color: "var(--navy)" }} />
+                    {errors.lastName && <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>}
+                  </div>
                 </div>
-                <Field label="Email address" id="email" field="email" placeholder="lerato@example.com" type="email" />
+                <div className="w-full">
+                  <label htmlFor="email" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>Email address</label>
+                  <input id="email" type="email" placeholder="lerato@example.com" value={form.email} onChange={set("email")} className={fieldClass("email")} style={{ color: "var(--navy)" }} />
+                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+                </div>
               </section>
 
               {/* Delivery */}
               <section className="bg-white rounded-2xl p-6 border" style={{ borderColor: "rgba(26,26,46,0.08)" }}>
                 <h2 className="font-extrabold text-base mb-5" style={{ color: "var(--navy)" }}>Delivery address</h2>
                 <div className="flex flex-col gap-4">
-                  <Field label="Street address" id="address" field="address" placeholder="12 Main Street, Apt 3" />
+                  <div className="w-full">
+                    <label htmlFor="address" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>Street address</label>
+                    <input id="address" placeholder="12 Main Street, Apt 3" value={form.address} onChange={set("address")} className={fieldClass("address")} style={{ color: "var(--navy)" }} />
+                    {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
+                  </div>
                   <div className="flex gap-4 flex-wrap sm:flex-nowrap">
-                    <Field label="City"    id="city"       field="city"       placeholder="Johannesburg" half />
-                    <Field label="Province" id="province" field="province"   placeholder="Gauteng" half />
+                    <div className="flex-1 min-w-0">
+                      <label htmlFor="city" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>City</label>
+                      <input id="city" placeholder="Johannesburg" value={form.city} onChange={set("city")} className={fieldClass("city")} style={{ color: "var(--navy)" }} />
+                      {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <label htmlFor="province" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>Province</label>
+                      <input id="province" placeholder="Gauteng" value={form.province} onChange={set("province")} className={fieldClass("province")} style={{ color: "var(--navy)" }} />
+                      {errors.province && <p className="text-xs text-red-500 mt-1">{errors.province}</p>}
+                    </div>
                   </div>
                   <div className="w-full sm:w-1/3">
-                    <Field label="Postal code" id="postalCode" field="postalCode" placeholder="2000" />
+                    <label htmlFor="postalCode" className="block text-xs font-bold mb-1.5" style={{ color: "var(--navy)" }}>Postal code</label>
+                    <input id="postalCode" placeholder="2000" value={form.postalCode} onChange={set("postalCode")} className={fieldClass("postalCode")} style={{ color: "var(--navy)" }} />
+                    {errors.postalCode && <p className="text-xs text-red-500 mt-1">{errors.postalCode}</p>}
                   </div>
                 </div>
               </section>
